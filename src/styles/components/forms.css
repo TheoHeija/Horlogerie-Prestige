@@ -1,0 +1,131 @@
+/* 
+ * FORM COMPONENTS STYLING
+ * Global styling for form elements
+ */
+
+/* Form input base styles */
+.form-input {
+    @apply w-full rounded-md border-gray-300 shadow-sm transition-all duration-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-0 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/50 dark:placeholder-gray-500 hover:border-gray-400 dark:hover:border-gray-500;
+}
+
+/* Input states */
+.form-input:disabled {
+    @apply bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-75;
+}
+
+.form-input.error {
+    @apply border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500/50 dark:focus:border-red-500 dark:focus:ring-red-500/50;
+}
+
+.form-input.success {
+    @apply border-green-500 dark:border-green-500 focus:border-green-500 focus:ring-green-500/50 dark:focus:border-green-500 dark:focus:ring-green-500/50;
+}
+
+/* Special styling for select inputs */
+select.form-input {
+    @apply pr-10 bg-no-repeat bg-right;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-size: 1.5em 1.5em;
+}
+
+select.form-input:focus {
+    @apply bg-white dark:bg-gray-700;
+}
+
+/* Enhanced textarea styling */
+textarea.form-input {
+    @apply resize-none;
+}
+
+/* Premium input for important fields */
+.form-input-premium {
+    @apply form-input border-yellow-300 dark:border-yellow-700 focus:border-yellow-500 focus:ring-yellow-500/50 dark:focus:border-yellow-500 dark:focus:ring-yellow-500/50;
+}
+
+/* Form label styling */
+.form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+}
+
+/* Form helper text */
+.form-helper-text {
+    @apply mt-1.5 text-xs text-gray-500 dark:text-gray-400;
+}
+
+/* Error message */
+.form-error {
+    @apply text-xs text-red-600 dark:text-red-400 mt-1;
+}
+
+/* Form group with proper spacing */
+.form-group {
+    @apply space-y-1.5 mb-4;
+}
+
+/* Required field indicator */
+.form-required {
+    @apply text-red-500 ml-1;
+}
+
+/* Custom checkbox styling */
+.form-checkbox {
+    @apply rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500/40 focus:ring-offset-0 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-indigo-500;
+}
+
+/* Custom radio styling */
+.form-radio {
+    @apply border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500/40 focus:ring-offset-0 dark:border-gray-600 dark:bg-gray-700 dark:checked:bg-indigo-500;
+}
+
+/* Checkbox/radio label */
+.form-check-label {
+    @apply ml-2 block text-sm text-gray-700 dark:text-gray-300;
+}
+
+/* Checkbox/radio container */
+.form-check {
+    @apply flex items-center;
+}
+
+/* Form section divider */
+.form-divider {
+    @apply border-t border-gray-200 dark:border-gray-700 my-6;
+}
+
+/* Form section title */
+.form-section-title {
+    @apply text-lg font-medium text-gray-900 dark:text-white mb-4;
+}
+
+/* Form actions container */
+.form-actions {
+    @apply flex justify-end space-x-3 mt-8 pt-4 border-t border-gray-200 dark:border-gray-700;
+}
+
+/* Floating label inputs (modern style) */
+.floating-label {
+    @apply relative;
+}
+
+.floating-label .form-input {
+    @apply pt-6 pb-2;
+}
+
+.floating-label label {
+    @apply absolute top-1/2 left-3.5 -translate-y-1/2 transition-all duration-200 text-gray-500 dark:text-gray-400 pointer-events-none;
+}
+
+.floating-label .form-input:focus~label,
+.floating-label .form-input:not(:placeholder-shown)~label {
+    @apply text-xs text-indigo-600 dark:text-indigo-400 top-3 -translate-y-0;
+}
+
+/* Light background for dark mode input fields */
+.form-input.bg-white.dark\:bg-gray-700 {
+    @apply dark:bg-gray-700;
+}
+
+/* Luxury form styling for special inputs */
+.form-input-luxury {
+    @apply form-input border-yellow-400 dark:border-yellow-600 bg-gradient-to-r from-yellow-50 to-transparent dark:from-yellow-900/20 dark:to-transparent focus:from-transparent dark:focus:from-transparent;
+}

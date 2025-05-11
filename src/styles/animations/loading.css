@@ -1,0 +1,164 @@
+/* 
+ * LOADING ANIMATIONS
+ * Various loading and skeleton animations
+ */
+
+/* Spinner animation */
+.spinner {
+    @apply inline-block rounded-full border-t-2 border-r-2 border-indigo-500;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-sm {
+    @apply w-4 h-4;
+}
+
+.spinner-md {
+    @apply w-8 h-8;
+}
+
+.spinner-lg {
+    @apply w-12 h-12;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Skeleton loading animation */
+.skeleton {
+    @apply bg-gray-200 dark:bg-gray-700 animate-pulse;
+}
+
+.skeleton-text {
+    @apply h-4 rounded skeleton;
+}
+
+.skeleton-text-sm {
+    @apply h-3 rounded skeleton;
+}
+
+.skeleton-text-lg {
+    @apply h-6 rounded skeleton;
+}
+
+.skeleton-circle {
+    @apply rounded-full skeleton;
+}
+
+.skeleton-rect {
+    @apply rounded-md skeleton;
+}
+
+/* Luxury watch loading animation */
+.loading-watch {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    position: relative;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 33%, rgba(255, 255, 255, 0.25) 100%);
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.loading-watch:before {
+    content: "";
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background: conic-gradient(transparent, rgba(99, 102, 241, 0.8), transparent);
+    animation: watchRotate 2s linear infinite;
+}
+
+.loading-watch:after {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    background: #1f2937;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode loading watch */
+.dark .loading-watch {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.3) 33%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.dark .loading-watch:after {
+    background: #0f172a;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+@keyframes watchRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Gradient loading animation */
+.loading-gradient {
+    background: linear-gradient(90deg,
+            rgba(99, 102, 241, 0.5),
+            rgba(99, 102, 241, 0.7),
+            rgba(99, 102, 241, 0.5));
+    background-size: 200% 100%;
+    animation: gradientMove 1.5s ease-in-out infinite;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Progress bar loading */
+.progress-loading {
+    height: 4px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(99, 102, 241, 0.2);
+}
+
+.progress-loading:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    background-color: rgba(99, 102, 241, 1);
+    animation: progressLoading 1.5s ease-in-out infinite;
+}
+
+@keyframes progressLoading {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    60% {
+        transform: translateX(400%);
+    }
+
+    100% {
+        transform: translateX(400%);
+    }
+}

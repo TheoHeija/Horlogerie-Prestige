@@ -1,0 +1,134 @@
+/* 
+ * PRODUCTS PAGE STYLES
+ * Specific styling for the products page
+ */
+
+/* Product card base styles */
+.product-card {
+    @apply transition-all duration-300 hover:shadow-lg relative bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden;
+}
+
+/* Product card image container */
+.product-image-container {
+    @apply relative overflow-hidden h-40 bg-gray-100 dark:bg-gray-800;
+    transition: transform 0.3s ease;
+}
+
+.product-image-container img {
+    @apply w-full h-full object-cover;
+    transition: transform 0.5s ease;
+}
+
+/* Product card details */
+.product-details {
+    @apply p-4 space-y-2;
+}
+
+.product-brand {
+    @apply text-sm font-medium text-indigo-600 dark:text-indigo-400;
+}
+
+.product-name {
+    @apply text-lg font-semibold text-gray-900 dark:text-white;
+}
+
+.product-description {
+    @apply text-gray-500 dark:text-gray-400 text-sm line-clamp-2;
+}
+
+.product-price {
+    @apply text-xl font-bold text-gray-900 dark:text-white;
+}
+
+.product-inventory {
+    @apply text-sm font-medium;
+}
+
+.product-inventory.low {
+    @apply text-red-600 dark:text-red-400;
+}
+
+.product-inventory.in-stock {
+    @apply text-gray-600 dark:text-gray-400;
+}
+
+.product-reference {
+    @apply mt-2 text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Product hover effects */
+.product-card:hover .product-image-container img {
+    transform: scale(1.05);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Product card action buttons */
+.product-actions {
+    @apply absolute top-2 right-2 flex space-x-1 opacity-0 transform translate-y-2 transition-all duration-300;
+}
+
+.product-card:hover .product-actions {
+    @apply opacity-100 transform translate-y-0;
+}
+
+/* Filter tags styling */
+.filter-tag {
+    @apply inline-flex items-center bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs rounded-full px-3 py-1;
+}
+
+/* Grid/List view toggle */
+.view-toggle {
+    @apply bg-gray-100 dark:bg-gray-700 rounded-md flex;
+}
+
+.view-toggle-button {
+    @apply p-2.5 transition-colors duration-200;
+}
+
+.view-toggle-button.active {
+    @apply bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-sm;
+}
+
+.view-toggle-button:not(.active) {
+    @apply text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200;
+}
+
+/* List view specific styles */
+.list-view-item {
+    @apply flex flex-row border-0;
+}
+
+.list-view-image {
+    @apply w-36 h-36 flex-shrink-0;
+}
+
+.list-view-content {
+    @apply flex-1 flex flex-col p-4;
+}
+
+.list-view-header {
+    @apply flex justify-between items-start;
+}
+
+.list-view-meta {
+    @apply grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 mt-3;
+}
+
+.list-view-footer {
+    @apply flex justify-between items-center mt-auto pt-3 border-t border-gray-100 dark:border-gray-700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .list-view-meta {
+        @apply grid-cols-1;
+    }
+}
+
+/* Product image skeleton loading animation */
+.image-skeleton {
+    @apply bg-gray-200 dark:bg-gray-700 animate-pulse;
+}
