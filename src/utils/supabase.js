@@ -1,18 +1,64 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get Supabase credentials from environment variables
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://gxsfbcgkythnelmrezoa.supabase.co';
-// Important: Never expose API keys in your code
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
+// Hard-coded credentials for development only
+// IMPORTANT: In production, these should be moved to environment variables
+const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
+// Using direct key for now to fix the "supabaseKey is required" error
+// This will be replaced with proper environment variables in production
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c2ZiY2dreXRobmVsbXJlem9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzODkxMTksImV4cCI6MjA2MTk2NTExOX0.H1lJiSHQB9sOZPLeteCdgAxRg7o1ZI9VRpF2vzX1cMY';
 
-// Create Supabase client with debug logging
+// Create Supabase client
 console.log('Creating Supabase client with URL:', supabaseUrl);
+console.log('Using key:', supabaseAnonKey ? 'Key is provided' : 'No key provided');
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         autoRefreshToken: true,
         persistSession: true
     }
 });
+
+// Upload product image to Supabase Storage
+export const uploadProductImage = async (file) => {
+    try {
+        if (!file) {
+            throw new Error('No file provided');
+        }
+
+        // Generate a unique file name to avoid collisions
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        console.log('Uploading file to Supabase Storage:', filePath);
+        
+        // Upload the file to the 'product-images' bucket
+        const { data, error } = await supabase
+            .storage
+            .from('product-images')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) {
+            console.error('Error uploading file:', error);
+            throw error;
+        }
+
+        // Get the public URL for the uploaded file
+        const { data: urlData } = supabase
+            .storage
+            .from('product-images')
+            .getPublicUrl(filePath);
+
+        console.log('File uploaded successfully. Public URL:', urlData.publicUrl);
+        return { url: urlData.publicUrl, error: null };
+    } catch (error) {
+        console.error('Upload error:', error);
+        return { url: null, error };
+    }
+};
 
 // Mock data system as fallback when Supabase fails
 console.log('Setting up local storage fallback system for data persistence');
@@ -300,7 +346,11 @@ export const getOrders = async () => {
         // Try Supabase first
         const { data, error } = await supabase
             .from('orders')
-            .select('*, users(*), products(*)')
+            .select(`
+                *,
+                users:user_id (id, name, email),
+                products:product_id (id, name, brand, price, image_url)
+            `)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -310,7 +360,15 @@ export const getOrders = async () => {
             return { data: mockOrders, error: null };
         }
 
-        return { data, error: null };
+        // Transform to match expected format in the UI
+        const transformedOrders = data.map(order => ({
+            ...order,
+            users: order.users,
+            products: order.products,
+            total_price: parseFloat(order.total_price)
+        }));
+
+        return { data: transformedOrders, error: null };
     } catch (error) {
         console.error('Get orders error:', error);
         // Fallback to mock data
@@ -323,7 +381,11 @@ export const getOrderById = async (id) => {
     try {
         const { data, error } = await supabase
             .from('orders')
-            .select('*, users(*), products(*)')
+            .select(`
+                *,
+                users:user_id (id, name, email),
+                products:product_id (id, name, brand, price, image_url)
+            `)
             .eq('id', id)
             .single();
 
