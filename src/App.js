@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { reinitializeMockData } from './utils/supabase';
 
 // Layout components
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -25,6 +26,15 @@ import ProductShowcase from './pages/ProductShowcase';
  * Sets up routing and authentication
  */
 function App() {
+  // Initialize mock data for fallback authentication
+  useEffect(() => {
+    // Reinitialize mock data to ensure it includes the current admin@test.com account
+    const FORCE_MOCK_REFRESH = true; // Toggle this to force mock data refresh during development
+    if (FORCE_MOCK_REFRESH) {
+      reinitializeMockData();
+    }
+  }, []);
+
   // Handle dark mode based on localStorage preference
   useEffect(() => {
     // Apply theme settings

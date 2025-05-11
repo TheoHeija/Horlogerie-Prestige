@@ -66,9 +66,21 @@ console.log('Setting up local storage fallback system for data persistence');
 
 // Initialize mock data in localStorage if not already present
 const initializeMockData = () => {
-    // Check if mock data is already initialized
-    if (!localStorage.getItem('mockDataInitialized')) {
-        console.log('Initializing mock data in localStorage');
+    // Check if mock data is already initialized with the current version
+    const MOCK_DATA_VERSION = '1.1'; // Increment this when you update mock data structure
+    const currentVersion = localStorage.getItem('mockDataVersion');
+    
+    if (!localStorage.getItem('mockDataInitialized') || currentVersion !== MOCK_DATA_VERSION) {
+        console.log('Initializing mock data in localStorage with version', MOCK_DATA_VERSION);
+        
+        // If we have an older version, clean up first
+        if (localStorage.getItem('mockDataInitialized') && currentVersion !== MOCK_DATA_VERSION) {
+            console.log('Updating mock data from version', currentVersion, 'to', MOCK_DATA_VERSION);
+            localStorage.removeItem('mockUsers');
+            localStorage.removeItem('mockProducts');
+            localStorage.removeItem('mockOrders');
+            localStorage.removeItem('mockSessionUser');
+        }
 
         // Sample users
         const mockUsers = [
@@ -85,6 +97,13 @@ const initializeMockData = () => {
                 name: 'Regular User',
                 role: 'user',
                 created_at: '2023-01-02T00:00:00.000Z'
+            },
+            {
+                id: '3',
+                email: 'admin@test.com',
+                name: 'Test Admin',
+                role: 'admin',
+                created_at: '2023-01-03T00:00:00.000Z'
             }
         ];
 
@@ -169,6 +188,7 @@ const initializeMockData = () => {
         localStorage.setItem('mockProducts', JSON.stringify(mockProducts));
         localStorage.setItem('mockOrders', JSON.stringify(mockOrders));
         localStorage.setItem('mockDataInitialized', 'true');
+        localStorage.setItem('mockDataVersion', MOCK_DATA_VERSION);
 
         console.log('Mock data initialized successfully');
     } else {
@@ -178,6 +198,17 @@ const initializeMockData = () => {
 
 // Call initialization function
 initializeMockData();
+
+// Function to force reinitialize mock data (useful for development)
+export const reinitializeMockData = () => {
+    localStorage.removeItem('mockDataInitialized');
+    localStorage.removeItem('mockUsers');
+    localStorage.removeItem('mockProducts');
+    localStorage.removeItem('mockOrders');
+    localStorage.removeItem('mockSessionUser');
+    initializeMockData();
+    console.log('Mock data reinitialized with updated users');
+};
 
 // Helper function to generate a unique ID
 const generateId = () => {
@@ -196,7 +227,7 @@ export const signIn = async (email, password) => {
             const mockUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
             const user = mockUsers.find(u => u.email === email);
 
-            if (user && password === 'password') { // Simple mock password check
+            if (user && (password === 'password' || password === '123123')) { // Accept either password
                 return { data: { user }, error: null };
             }
 
