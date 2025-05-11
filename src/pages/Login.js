@@ -9,8 +9,8 @@ import { motion } from 'framer-motion';
  * Provides login form with email and password fields
  */
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('admin@test.com');
+    const [password, setPassword] = useState('123123');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -180,7 +180,6 @@ const Login = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="form-input-luxury w-full h-14 px-4 py-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner text-center"
                                 placeholder=" "
-                                defaultValue="admin@test.com"
                             />
                             <label htmlFor="email" className="text-gray-400 text-sm">
                                 Email address
@@ -198,7 +197,6 @@ const Login = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="form-input-luxury w-full h-14 px-4 py-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner text-center"
                                 placeholder=" "
-                                defaultValue="123123"
                             />
                             <label htmlFor="password" className="text-gray-400 text-sm">
                                 Password
