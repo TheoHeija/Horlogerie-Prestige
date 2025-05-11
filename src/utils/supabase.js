@@ -4,7 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 // IMPORTANT: In production, these should be moved to environment variables
 const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
 // Using direct key for now to fix the "supabaseKey is required" error
-// This will be replaced with proper environment variables in production
+// TODO: SECURITY ISSUE - This API key should be moved to environment variables before deployment
+// For production, use process.env.REACT_APP_SUPABASE_ANON_KEY or similar
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c2ZiY2dreXRobmVsbXJlem9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzODkxMTksImV4cCI6MjA2MTk2NTExOX0.H1lJiSHQB9sOZPLeteCdgAxRg7o1ZI9VRpF2vzX1cMY';
 
 // Create Supabase client
@@ -33,7 +34,7 @@ export const uploadProductImage = async (file) => {
         console.log('Uploading file to Supabase Storage:', filePath);
         
         // Upload the file to the 'product-images' bucket
-        const { data, error } = await supabase
+        const { error } = await supabase
             .storage
             .from('product-images')
             .upload(filePath, file, {
@@ -715,5 +716,272 @@ CREATE TABLE IF NOT EXISTS service_requests (
     } catch (error) {
         console.error('Error in createServiceRequestsTableIfNotExists:', error);
         return { success: false, usingMock: true, error: error.message };
+    }
+};
+
+// Analytics data helpers
+export const getAnalyticsData = async (timeRange = 'month', debugMode = false) => {
+    try {
+        if (debugMode) {
+            console.log('Fetching analytics data with timeRange:', timeRange);
+        }
+        
+        // Determine date range based on selected timeRange
+        const now = new Date();
+        let startDate;
+        
+        // Determine date range based on selected timeRange
+        switch(timeRange) {
+            case 'week':
+                // Last 7 days
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 7);
+                break;
+            case 'month':
+                // Last 30 days
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 30);
+                break;
+            case 'quarter':
+                // Last 90 days
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 90);
+                break;
+            case 'year':
+                // Last 365 days
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 365);
+                break;
+            default:
+                // Default to last 30 days
+                startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 30);
+        }
+
+        // Format date for Supabase query
+        const formattedStartDate = startDate.toISOString();
+
+        // Wrap API calls in try/catch to handle individual failures
+        let orders = [];
+        let products = [];
+        let usersData = [];
+
+        try {
+            const { data, error } = await supabase
+                .from('orders')
+                .select('*')
+                .gte('created_at', formattedStartDate)
+                .order('created_at', { ascending: false });
+                
+            if (error) throw error;
+            orders = data || [];
+        } catch (err) {
+            if (debugMode) console.error('Error fetching orders:', err);
+            // Continue with empty orders
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('products')
+                .select('*');
+                
+            if (error) throw error;
+            products = data || [];
+        } catch (err) {
+            if (debugMode) console.error('Error fetching products:', err);
+            // Continue with empty products
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*');
+                
+            if (error) throw error;
+            // eslint-disable-next-line no-unused-vars
+            usersData = data || [];
+        } catch (err) {
+            if (debugMode) console.error('Error fetching users:', err);
+            // Continue with empty users
+        }
+
+        // Safely parse float values
+        const safeParseFloat = (value) => {
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
+        };
+
+        // Process orders data
+        const totalSales = orders.reduce((sum, order) => sum + safeParseFloat(order.total_price), 0);
+        const orderCount = orders.length;
+        const averageOrderValue = orderCount > 0 ? totalSales / orderCount : 0;
+        
+        // Get top selling products by joining with orders
+        const productSales = {};
+        orders.forEach(order => {
+            if (order.product_id) {
+                if (!productSales[order.product_id]) {
+                    productSales[order.product_id] = { 
+                        count: 0, 
+                        sales: 0 
+                    };
+                }
+                productSales[order.product_id].count += 1;
+                productSales[order.product_id].sales += safeParseFloat(order.total_price);
+            }
+        });
+        
+        // Map product IDs to product data and sort by sales
+        const topSellingProducts = Object.entries(productSales)
+            .map(([productId, stats]) => {
+                const product = products.find(p => p.id === productId) || {};
+                return {
+                    id: productId,
+                    name: product.name || 'Unknown Product',
+                    brand: product.brand || 'Unknown Brand',
+                    units: stats.count,
+                    sales: stats.sales
+                };
+            })
+            .sort((a, b) => b.sales - a.sales)
+            .slice(0, 5);
+            
+        // Process monthly sales - calculate manually instead of using RPC
+        const monthlySalesMap = {};
+        orders.forEach(order => {
+            if (order.created_at) {
+                try {
+                    const date = new Date(order.created_at);
+                    const month = date.toLocaleString('en-US', { month: 'short' });
+                    
+                    if (!monthlySalesMap[month]) {
+                        monthlySalesMap[month] = {
+                            month,
+                            order_count: 0,
+                            amount: 0
+                        };
+                    }
+                    
+                    monthlySalesMap[month].order_count += 1;
+                    monthlySalesMap[month].amount += safeParseFloat(order.total_price);
+                } catch (err) {
+                    if (debugMode) console.error('Error processing date:', order.created_at, err);
+                    // Skip this order
+                }
+            }
+        });
+        
+        const monthlySales = Object.values(monthlySalesMap);
+            
+        // Process sales by category (using brand as category)
+        const brandSalesMap = {};
+        let totalBrandSales = 0;
+        
+        orders.forEach(order => {
+            if (order.product_id) {
+                const product = products.find(p => p.id === order.product_id);
+                const brand = product?.brand || 'Unknown';
+                
+                if (!brandSalesMap[brand]) {
+                    brandSalesMap[brand] = {
+                        category: brand,
+                        amount: 0,
+                        percentage: 0
+                    };
+                }
+                
+                const orderAmount = safeParseFloat(order.total_price);
+                brandSalesMap[brand].amount += orderAmount;
+                totalBrandSales += orderAmount;
+            }
+        });
+        
+        // Calculate percentages
+        const salesByCategory = Object.values(brandSalesMap).map(item => ({
+            ...item,
+            percentage: totalBrandSales > 0 
+                ? parseFloat((item.amount / totalBrandSales * 100).toFixed(1)) 
+                : 0
+        })).sort((a, b) => b.amount - a.amount);
+        
+        // Process payment methods
+        const paymentMethodsMap = {};
+        orders.forEach(order => {
+            const method = order.payment_method || 'Unknown';
+            
+            if (!paymentMethodsMap[method]) {
+                paymentMethodsMap[method] = {
+                    payment_method: method,
+                    count: 0
+                };
+            }
+            
+            paymentMethodsMap[method].count += 1;
+        });
+        
+        const paymentMethods = Object.values(paymentMethodsMap);
+        
+        // Process order status
+        const orderStatusMap = {};
+        orders.forEach(order => {
+            const status = order.status || 'Unknown';
+            
+            if (!orderStatusMap[status]) {
+                orderStatusMap[status] = {
+                    status,
+                    count: 0
+                };
+            }
+            
+            orderStatusMap[status].count += 1;
+        });
+        
+        const orderStatus = Object.values(orderStatusMap);
+        
+        // Calculate new vs returning customers
+        const userOrderCounts = {};
+        orders.forEach(order => {
+            if (order.user_id) {
+                if (!userOrderCounts[order.user_id]) {
+                    userOrderCounts[order.user_id] = 0;
+                }
+                userOrderCounts[order.user_id] += 1;
+            }
+        });
+        
+        const returningCustomersCount = Object.values(userOrderCounts).filter(count => count > 1).length;
+        const newCustomersCount = Object.values(userOrderCounts).filter(count => count === 1).length;
+        const totalCustomers = returningCustomersCount + newCustomersCount;
+        const returningCustomersPercentage = totalCustomers > 0 ? Math.round((returningCustomersCount / totalCustomers) * 100) : 0;
+        const newCustomersPercentage = totalCustomers > 0 ? Math.round((newCustomersCount / totalCustomers) * 100) : 0;
+        
+        // Compile all analytics data
+        const analyticsData = {
+            totalSales,
+            orderCount,
+            averageOrderValue,
+            topSellingProducts,
+            monthlySales,
+            salesByCategory,
+            paymentMethods,
+            orderStatus,
+            customerRetention: {
+                returning: {
+                    count: returningCustomersCount,
+                    percentage: returningCustomersPercentage
+                },
+                new: {
+                    count: newCustomersCount,
+                    percentage: newCustomersPercentage
+                }
+            }
+        };
+        
+        return { data: analyticsData, error: null };
+    } catch (error) {
+        if (debugMode) {
+            console.error('Error fetching analytics data:', error);
+        }
+        return { data: null, error };
     }
 }; 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AnimatedGradientText } from '../components/ui/animated-gradient-text';
 import { MagicCard } from '../components/ui/magic-card';
 import { ShimmerButton } from '../components/ui/shimmer-button';
@@ -10,135 +10,128 @@ import {
     CurrencyDollarIcon,
     ShoppingBagIcon,
     UserIcon,
-    ClockIcon
+    ClockIcon,
+    PresentationChartLineIcon,
+    CreditCardIcon
 } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../utils/helpers';
+import { getAnalyticsData } from '../utils/supabase';
+import { 
+    ResponsiveContainer, 
+    BarChart, 
+    Bar, 
+    XAxis, 
+    YAxis, 
+    CartesianGrid, 
+    Tooltip, 
+    PieChart, 
+    Pie, 
+    Cell, 
+    Legend 
+} from 'recharts';
 
 const Analytics = () => {
     const [loading, setLoading] = useState(true);
     const [contentLoaded, setContentLoaded] = useState(false);
     const [timeRange, setTimeRange] = useState('month');
+    const [error, setError] = useState(null);
 
-    // Sample data
-    const [salesData, setSalesData] = useState({
+    // Data state using the same structure as our API
+    const [analyticsData, setAnalyticsData] = useState({
         totalSales: 0,
+        orderCount: 0,
         averageOrderValue: 0,
-        conversionRate: 0,
         topSellingProducts: [],
         monthlySales: [],
-        customerAcquisition: [],
-        salesByCategory: []
+        salesByCategory: [],
+        paymentMethods: [],
+        orderStatus: [],
+        customerRetention: {
+            returning: { count: 0, percentage: 0 },
+            new: { count: 0, percentage: 0 }
+        }
     });
 
-    useEffect(() => {
-        // Simulate data loading
-        setTimeout(() => {
-            const mockData = {
-                totalSales: 287500,
-                averageOrderValue: 12500,
-                conversionRate: 3.2,
-                topSellingProducts: [
-                    { id: 1, name: "Rolex Submariner", sales: 42500, units: 5 },
-                    { id: 2, name: "Omega Speedmaster", sales: 26000, units: 5 },
-                    { id: 3, name: "Patek Philippe Nautilus", sales: 35000, units: 1 },
-                    { id: 4, name: "Audemars Piguet Royal Oak", sales: 29500, units: 1 },
-                    { id: 5, name: "Jaeger-LeCoultre Reverso", sales: 24600, units: 3 }
-                ],
-                monthlySales: [
-                    { month: "Jan", amount: 45200 },
-                    { month: "Feb", amount: 38900 },
-                    { month: "Mar", amount: 52600 },
-                    { month: "Apr", amount: 41800 },
-                    { month: "May", amount: 67500 },
-                    { month: "Jun", amount: 41500 },
-                ],
-                customerAcquisition: [
-                    { source: "Direct", count: 35, percentage: 35 },
-                    { source: "Organic Search", count: 22, percentage: 22 },
-                    { source: "Social Media", count: 18, percentage: 18 },
-                    { source: "Email", count: 15, percentage: 15 },
-                    { source: "Referral", count: 10, percentage: 10 }
-                ],
-                salesByCategory: [
-                    { category: "Dive Watches", amount: 87500, percentage: 30.4 },
-                    { category: "Dress Watches", amount: 65300, percentage: 22.7 },
-                    { category: "Chronographs", amount: 58200, percentage: 20.2 },
-                    { category: "Pilot Watches", amount: 42800, percentage: 14.9 },
-                    { category: "Field Watches", amount: 33700, percentage: 11.8 }
-                ]
-            };
+    // Colors for charts
+    const COLORS = ['#4F46E5', '#9333EA', '#EC4899', '#F97316', '#EAB308', '#22C55E'];
 
-            setSalesData(mockData);
+    const fetchAnalyticsData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        
+        try {
+            // Pass false for debugMode in production to reduce console logs
+            const { data, error } = await getAnalyticsData(timeRange, false);
+            
+            if (error) {
+                throw error;
+            }
+            
+            // Set the data if it exists
+            if (data) {
+                setAnalyticsData(data);
+            }
+            
             setLoading(false);
+            
+            // Slight delay for animation
             setTimeout(() => setContentLoaded(true), 100);
-        }, 1000);
-    }, []);
+        } catch (err) {
+            console.error('Error fetching analytics data:', err);
+            setError('Failed to load analytics data. Please try again later.');
+            setLoading(false);
+        }
+    }, [timeRange]);
+
+    useEffect(() => {
+        fetchAnalyticsData();
+    }, [fetchAnalyticsData]);
 
     const handleTimeRangeChange = (range) => {
-        setTimeRange(range);
-        // In a real app, this would fetch new data for the time range
+        if (range !== timeRange) {
+            setTimeRange(range);
+            setContentLoaded(false);
+        }
     };
 
-    // Function to create a simple bar chart using divs
-    const renderBarChart = (data, valueKey = 'amount', labelKey = 'month') => {
-        if (!data || data.length === 0) return null;
+    const handleRefresh = () => {
+        setContentLoaded(false);
+        fetchAnalyticsData();
+    };
 
-        const maxValue = Math.max(...data.map(item => item[valueKey]));
+    // Custom tooltip for charts
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md">
+                    <p className="font-medium text-gray-900 dark:text-white">{label}</p>
+                    <p className="text-indigo-600 dark:text-indigo-400">
+                        {formatCurrency(payload[0].value)}
+                    </p>
+                </div>
+            );
+        }
+        return null;
+    };
 
+    // Error display
+    if (error) {
         return (
-            <div className="flex items-end h-40 space-x-2 mt-4">
-                {data.map((item, index) => {
-                    const heightPercent = (item[valueKey] / maxValue) * 100;
-
-                    return (
-                        <div key={index} className="flex flex-col items-center flex-1">
-                            <div
-                                className="w-full bg-indigo-500 dark:bg-indigo-600 rounded-t transition-all duration-500 ease-out"
-                                style={{
-                                    height: `${heightPercent}%`,
-                                    transitionDelay: `${index * 100}ms`,
-                                    opacity: contentLoaded ? 1 : 0,
-                                    transform: contentLoaded ? 'scaleY(1)' : 'scaleY(0)',
-                                    transformOrigin: 'bottom'
-                                }}
-                            />
-                            <div className="text-xs mt-1 text-gray-600 dark:text-gray-400">{item[labelKey]}</div>
-                        </div>
-                    );
-                })}
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+                <div className="text-red-500 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Failed to Load Analytics</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+                <ShimmerButton onClick={handleRefresh} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    <ArrowPathIcon className="h-5 w-5 mr-1" />
+                    Try Again
+                </ShimmerButton>
             </div>
         );
-    };
-
-    // Function to create a horizontal bar chart
-    const renderHorizontalBarChart = (data, valueKey = 'percentage', labelKey = 'category') => {
-        if (!data || data.length === 0) return null;
-
-        return (
-            <div className="space-y-3 mt-4">
-                {data.map((item, index) => (
-                    <div key={index} className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">{item[labelKey]}</span>
-                            <span className="text-gray-600 dark:text-gray-400">
-                                {typeof item.amount === 'number' ? formatCurrency(item.amount) : ''}
-                            </span>
-                        </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div
-                                className="bg-indigo-500 dark:bg-indigo-600 h-2.5 rounded-full transition-all duration-1000 ease-out"
-                                style={{
-                                    width: `${item[valueKey]}%`,
-                                    transitionDelay: `${index * 100}ms`,
-                                    opacity: contentLoaded ? 1 : 0
-                                }}
-                            />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
+    }
 
     return (
         <div className="space-y-6">
@@ -197,7 +190,7 @@ const Analytics = () => {
                             Year
                         </button>
                     </div>
-                    <ShimmerButton onClick={() => window.print()} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    <ShimmerButton onClick={handleRefresh} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                         <ArrowPathIcon className="h-5 w-5 mr-1" />
                         Refresh Data
                     </ShimmerButton>
@@ -213,7 +206,7 @@ const Analytics = () => {
                         </div>
                         <div className="ml-4">
                             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Sales</h3>
-                            <p className="mt-1 text-2xl font-bold">{loading ? '...' : formatCurrency(salesData.totalSales)}</p>
+                            <p className="mt-1 text-2xl font-bold">{loading ? '...' : formatCurrency(analyticsData.totalSales)}</p>
                             <div className="mt-1 flex items-center text-xs text-green-600 dark:text-green-500">
                                 <ArrowUpIcon className="h-3 w-3 mr-1" />
                                 <span>12% from last month</span>
@@ -229,7 +222,7 @@ const Analytics = () => {
                         </div>
                         <div className="ml-4">
                             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Average Order Value</h3>
-                            <p className="mt-1 text-2xl font-bold">${loading ? '...' : salesData.averageOrderValue.toLocaleString()}</p>
+                            <p className="mt-1 text-2xl font-bold">{loading ? '...' : formatCurrency(analyticsData.averageOrderValue)}</p>
                             <div className="mt-1 flex items-center text-xs text-green-600 dark:text-green-500">
                                 <ArrowUpIcon className="h-3 w-3 mr-1" />
                                 <span>5% from last month</span>
@@ -244,11 +237,11 @@ const Analytics = () => {
                             <UserIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div className="ml-4">
-                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Conversion Rate</h3>
-                            <p className="mt-1 text-2xl font-bold">{loading ? '...' : `${salesData.conversionRate}%`}</p>
-                            <div className="mt-1 flex items-center text-xs text-red-600 dark:text-red-500">
-                                <ArrowDownIcon className="h-3 w-3 mr-1" />
-                                <span>0.5% from last month</span>
+                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Orders</h3>
+                            <p className="mt-1 text-2xl font-bold">{loading ? '...' : analyticsData.orderCount}</p>
+                            <div className="mt-1 flex items-center text-xs text-green-600 dark:text-green-500">
+                                <ArrowUpIcon className="h-3 w-3 mr-1" />
+                                <span>8% from last month</span>
                             </div>
                         </div>
                     </div>
@@ -258,7 +251,7 @@ const Analytics = () => {
             {/* Charts and Data */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Monthly Sales */}
-                <div className="card">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-semibold">Monthly Sales</h2>
                         <div className="p-1 rounded-md bg-indigo-100 dark:bg-indigo-900/30">
@@ -268,44 +261,94 @@ const Analytics = () => {
 
                     {loading ? (
                         <div className="animate-pulse space-y-4">
-                            <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                            <div className="h-60 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
                         </div>
                     ) : (
-                        renderBarChart(salesData.monthlySales)
+                        <div className="h-60">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={analyticsData.monthlySales}
+                                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                                    <XAxis dataKey="month" />
+                                    <YAxis 
+                                        tickFormatter={value => `$${(value / 1000).toFixed(0)}k`} 
+                                        width={60}
+                                    />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Bar 
+                                        dataKey="amount" 
+                                        fill="#4F46E5" 
+                                        name="Sales"
+                                        radius={[4, 4, 0, 0]}
+                                        animationDuration={1500}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
                     )}
 
                     <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Looking strong with {timeRange === 'month' ? 'May' : 'Q2'} being the highest performing period
+                        Looking strong with continuous growth over the last months
                     </div>
                 </div>
 
                 {/* Sales by Category */}
-                <div className="card">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-semibold">Sales by Category</h2>
+                        <h2 className="text-lg font-semibold">Sales by Brand</h2>
                         <div className="p-1 rounded-md bg-purple-100 dark:bg-purple-900/30">
-                            <ClockIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                            <PresentationChartLineIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
                     </div>
 
                     {loading ? (
                         <div className="animate-pulse space-y-4">
-                            <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                            <div className="h-60 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
                         </div>
                     ) : (
-                        renderHorizontalBarChart(salesData.salesByCategory)
+                        <div className="h-60">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={analyticsData.salesByCategory}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        dataKey="amount"
+                                        nameKey="category"
+                                        label={({ category, percentage }) => `${category}: ${percentage}%`}
+                                        labelLine={false}
+                                        animationDuration={1500}
+                                    >
+                                        {analyticsData.salesByCategory.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={value => formatCurrency(value)} />
+                                    <Legend 
+                                        layout="horizontal" 
+                                        verticalAlign="bottom" 
+                                        align="center"
+                                        formatter={(value) => <span className="text-xs">{value}</span>}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     )}
 
-                    <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Dive watches remain our most popular category
+                    <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                        Premium brands account for the majority of our sales
                     </div>
                 </div>
             </div>
 
-            {/* Top Selling Products & Customer Acquisition */}
+            {/* Top Selling Products & Payment Methods */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Top Selling Products */}
-                <div className="card">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                     <div className="mb-4">
                         <h2 className="text-lg font-semibold">Top Selling Products</h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400">By revenue</p>
@@ -319,7 +362,7 @@ const Analytics = () => {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {salesData.topSellingProducts.map((product, index) => (
+                            {analyticsData.topSellingProducts.map((product, index) => (
                                 <div
                                     key={index}
                                     className={`flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 transition-all duration-300 ${contentLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
@@ -331,12 +374,15 @@ const Analytics = () => {
                                             {index + 1}
                                         </div>
                                         <div className="ml-3">
-                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{product.name}</div>
+                                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                {product.name}
+                                                <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">{product.brand}</span>
+                                            </div>
                                             <div className="text-xs text-gray-500 dark:text-gray-400">{product.units} units sold</div>
                                         </div>
                                     </div>
                                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                        ${product.sales.toLocaleString()}
+                                        {formatCurrency(product.sales)}
                                     </div>
                                 </div>
                             ))}
@@ -344,11 +390,11 @@ const Analytics = () => {
                     )}
                 </div>
 
-                {/* Customer Acquisition */}
-                <div className="card">
+                {/* Payment Methods */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                     <div className="mb-4">
-                        <h2 className="text-lg font-semibold">Customer Acquisition</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">By source</p>
+                        <h2 className="text-lg font-semibold">Payment Methods</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Distribution by order count</p>
                     </div>
 
                     {loading ? (
@@ -356,27 +402,51 @@ const Analytics = () => {
                             <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
                         </div>
                     ) : (
-                        renderHorizontalBarChart(salesData.customerAcquisition, 'percentage', 'source')
+                        <div className="h-60">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={analyticsData.paymentMethods.map(method => ({
+                                            name: method.payment_method || 'Other',
+                                            value: parseInt(method.count)
+                                        }))}
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius={80}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        label={({ name, value, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                        labelLine={false}
+                                        animationDuration={1500}
+                                    >
+                                        {analyticsData.paymentMethods.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     )}
 
                     <div className="mt-6 grid grid-cols-2 gap-2 text-xs text-center">
                         <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-md">
                             <div className="font-medium text-gray-700 dark:text-gray-300">Returning Customers</div>
-                            <div className="mt-1 text-lg font-semibold">68%</div>
+                            <div className="mt-1 text-lg font-semibold">{analyticsData.customerRetention.returning.percentage}%</div>
                         </div>
                         <div className="p-2 bg-gray-50 dark:bg-gray-800/50 rounded-md">
                             <div className="font-medium text-gray-700 dark:text-gray-300">New Customers</div>
-                            <div className="mt-1 text-lg font-semibold">32%</div>
+                            <div className="mt-1 text-lg font-semibold">{analyticsData.customerRetention.new.percentage}%</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Annual Performance */}
-            <div className="card">
+            {/* Order Status Distribution */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
                 <div className="mb-6">
-                    <h2 className="text-lg font-semibold">Annual Performance</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Year-to-date performance against targets</p>
+                    <h2 className="text-lg font-semibold">Order Status Distribution</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Current status of all orders</p>
                 </div>
 
                 {loading ? (
@@ -387,58 +457,52 @@ const Analytics = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="font-medium text-gray-700 dark:text-gray-300">Revenue</span>
-                                <span className="text-gray-900 dark:text-white font-medium">$1.45M / $2.5M</span>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                                <div
-                                    className="bg-indigo-500 dark:bg-indigo-600 h-4 rounded-full transition-all duration-1000 ease-out"
-                                    style={{
-                                        width: '58%',
-                                        opacity: contentLoaded ? 1 : 0
-                                    }}
-                                />
-                            </div>
-                            <div className="text-right text-xs text-gray-500 dark:text-gray-400">58% of annual target</div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="font-medium text-gray-700 dark:text-gray-300">Units Sold</span>
-                                <span className="text-gray-900 dark:text-white font-medium">124 / 200</span>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                                <div
-                                    className="bg-purple-500 dark:bg-purple-600 h-4 rounded-full transition-all duration-1000 ease-out"
-                                    style={{
-                                        width: '62%',
-                                        opacity: contentLoaded ? 1 : 0,
-                                        transitionDelay: '200ms'
-                                    }}
-                                />
-                            </div>
-                            <div className="text-right text-xs text-gray-500 dark:text-gray-400">62% of annual target</div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="font-medium text-gray-700 dark:text-gray-300">New Customers</span>
-                                <span className="text-gray-900 dark:text-white font-medium">58 / 100</span>
-                            </div>
-                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-                                <div
-                                    className="bg-amber-500 dark:bg-amber-600 h-4 rounded-full transition-all duration-1000 ease-out"
-                                    style={{
-                                        width: '58%',
-                                        opacity: contentLoaded ? 1 : 0,
-                                        transitionDelay: '400ms'
-                                    }}
-                                />
-                            </div>
-                            <div className="text-right text-xs text-gray-500 dark:text-gray-400">58% of annual target</div>
-                        </div>
+                        {analyticsData.orderStatus.map((status, index) => {
+                            // Calculate percentage of orders with this status
+                            const percentage = Math.round((parseInt(status.count) / analyticsData.orderCount) * 100);
+                            
+                            // Different colors for different statuses
+                            let barColor;
+                            switch(status.status) {
+                                case 'completed':
+                                    barColor = 'bg-green-500 dark:bg-green-600';
+                                    break;
+                                case 'processing':
+                                    barColor = 'bg-blue-500 dark:bg-blue-600';
+                                    break;
+                                case 'shipped':
+                                    barColor = 'bg-purple-500 dark:bg-purple-600';
+                                    break;
+                                case 'pending':
+                                    barColor = 'bg-yellow-500 dark:bg-yellow-600';
+                                    break;
+                                case 'cancelled':
+                                    barColor = 'bg-red-500 dark:bg-red-600';
+                                    break;
+                                default:
+                                    barColor = 'bg-gray-500 dark:bg-gray-600';
+                            }
+                            
+                            return (
+                                <div key={index} className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="font-medium text-gray-700 dark:text-gray-300 capitalize">{status.status}</span>
+                                        <span className="text-gray-900 dark:text-white font-medium">{status.count} orders</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                                        <div
+                                            className={`${barColor} h-4 rounded-full transition-all duration-1000 ease-out`}
+                                            style={{
+                                                width: `${percentage}%`,
+                                                opacity: contentLoaded ? 1 : 0,
+                                                transitionDelay: `${index * 200}ms`
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="text-right text-xs text-gray-500 dark:text-gray-400">{percentage}% of all orders</div>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
