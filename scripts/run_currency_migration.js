@@ -2,13 +2,16 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') }); // Load environment variables from project root
 
-// Using the same credentials from the app
-const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c2ZiY2dreXRobmVsbXJlem9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzODkxMTksImV4cCI6MjA2MTk2NTExOX0.H1lJiSHQB9sOZPLeteCdgAxRg7o1ZI9VRpF2vzX1cMY';
+// Using environment variables for Supabase credentials
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://gxsfbcgkythnelmrezoa.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
 // Create Supabase client
 console.log('Connecting to Supabase...');
+console.log('Using URL:', supabaseUrl);
+console.log('Using key:', supabaseAnonKey ? 'Key is set (hidden for security)' : 'No key provided');
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function runMigration() {

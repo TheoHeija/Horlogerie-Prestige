@@ -1,14 +1,15 @@
 // Test script to check Supabase connection and create necessary tables
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config(); // Load environment variables
 
-// Using the same credentials from your app
-const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c2ZiY2dreXRobmVsbXJlem9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzODkxMTksImV4cCI6MjA2MTk2NTExOX0.H1lJiSHQB9sOZPLeteCdgAxRg7o1ZI9VRpF2vzX1cMY';
+// Using environment variables for Supabase credentials
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://gxsfbcgkythnelmrezoa.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
 // Create Supabase client with debugging
 console.log('Starting Supabase test script...');
 console.log('Using URL:', supabaseUrl);
-console.log('Using key:', supabaseAnonKey.substring(0, 10) + '...');
+console.log('Using key:', supabaseAnonKey ? supabaseAnonKey.substring(0, 10) + '...' : 'No key provided');
 
 // Create client with debugging options
 const supabase = createClient(supabaseUrl, supabaseAnonKey);

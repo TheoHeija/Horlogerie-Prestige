@@ -1,6 +1,23 @@
-# Getting Started with Create React App
+# Horlogerie Prestige
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A luxury watch e-commerce and management application built with React and Supabase.
+
+## Environment Setup
+
+This project uses environment variables for secure configuration. Before starting the application, you need to set up your environment:
+
+1. Copy the `.env.example` file to create a new `.env` file:
+   ```
+   cp .env.example .env
+   ```
+
+2. Edit the `.env` file and add your Supabase credentials:
+   ```
+   REACT_APP_SUPABASE_URL=your_supabase_url_here
+   REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   ```
+
+> **Important:** Never commit your `.env` file to version control. It contains sensitive information.
 
 ## Available Scripts
 
@@ -39,11 +56,20 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Security Best Practices
+
+- **Environment Variables**: Store sensitive information in environment variables, not in your code
+- **API Keys**: Never expose API keys in your client-side code without proper access controls
+- **Token Rotation**: Regularly rotate your API keys and tokens
+- **Access Controls**: Use proper access control rules in your Supabase configuration
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+For Supabase documentation, visit [Supabase docs](https://supabase.io/docs).
 
 ### Code Splitting
 

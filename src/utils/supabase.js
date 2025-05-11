@@ -1,10 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Original URL with potential issues
-// const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
-// Updated URL with correct format - using direct API endpoint 
-const supabaseUrl = 'https://gxsfbcgkythnelmrezoa.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4c2ZiY2dreXRobmVsbXJlem9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYzODkxMTksImV4cCI6MjA2MTk2NTExOX0.H1lJiSHQB9sOZPLeteCdgAxRg7o1ZI9VRpF2vzX1cMY';
+// Get Supabase credentials from environment variables
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://gxsfbcgkythnelmrezoa.supabase.co';
+// Important: Never expose API keys in your code
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
 // Create Supabase client with debug logging
 console.log('Creating Supabase client with URL:', supabaseUrl);

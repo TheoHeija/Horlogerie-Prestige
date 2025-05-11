@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <!-- Watch case -->
+    <circle cx="256" cy="256" r="200" fill="#222222" stroke="#555555" stroke-width="8"/>
+    <circle cx="256" cy="256" r="180" fill="#333333" stroke="#666666" stroke-width="4"/>
+
+    <!-- Watch face -->
+    <circle cx="256" cy="256" r="160" fill="#111111" stroke="#444444" stroke-width="2"/>
+
+    <!-- Hour markers - elegant gold -->
+    <line x1="256" y1="116" x2="256" y2="136" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+    <line x1="256" y1="376" x2="256" y2="396" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+    <line x1="116" y1="256" x2="136" y2="256" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+    <line x1="376" y1="256" x2="396" y2="256" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- Diagonal hour markers - elegant gold -->
+    <line x1="176" y1="176" x2="190" y2="190" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+    <line x1="336" y1="176" x2="322" y2="190" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+    <line x1="176" y1="336" x2="190" y2="322" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+    <line x1="336" y1="336" x2="322" y2="322" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Watch hands - elegant gold -->
+    <line x1="256" y1="256" x2="256" y2="176" stroke="#d4af37" stroke-width="4" stroke-linecap="round"/>
+    <line x1="256" y1="256" x2="336" y2="256" stroke="#d4af37" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Center point -->
+    <circle cx="256" cy="256" r="8" fill="#d4af37"/>
+
+    <!-- Watch crown -->
+    <rect x="396" y="246" width="16" height="20" rx="5" fill="#d4af37"/>
+
+    <!-- HP logo in center -->
+    <text x="256" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#d4af37">HP</text>
+</svg> 
