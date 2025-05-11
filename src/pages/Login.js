@@ -71,24 +71,25 @@ const Login = () => {
     return (
         <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
             {/* Left decorative section */}
-            <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8 relative overflow-hidden">
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-5">
-                    <div className="absolute inset-0 bg-[url('/public/images/placeholder-watch.svg')] bg-repeat bg-center"></div>
+            <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-gray-900 to-black p-8 relative overflow-hidden">
+                {/* Background pattern with watch motif */}
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute inset-0 bg-[url('/public/images/placeholder-watch.svg')] bg-center bg-no-repeat bg-contain"></div>
                 </div>
                 
                 {/* Subtle decorative elements */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent"></div>
                 
-                <div className="relative z-10 flex flex-col h-full justify-center items-center text-center">
+                {/* Centered content container */}
+                <div className="relative z-10 flex flex-col h-full justify-center items-center text-center max-w-md mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="mb-12"
+                        className="mb-8"
                     >
-                        <img src="/images/favicon-watch.svg" alt="Watch Logo" className="h-40 w-40 mx-auto filter drop-shadow-lg" />
+                        <img src="/images/favicon-watch.svg" alt="Watch Logo" className="h-32 w-32 mx-auto filter drop-shadow-lg" />
                     </motion.div>
                     
                     <motion.div
@@ -114,16 +115,16 @@ const Login = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.6, duration: 0.8 }}
-                        className="mt-12 font-light"
+                        className="mt-8 font-light"
                     >
-                        <div className="border border-gray-800 p-8 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg">
-                            <div className="text-4xl font-mono text-center tracking-widest text-[#d4af37]">
+                        <div className="border border-gray-800 p-6 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg mx-auto max-w-xs">
+                            <div className="text-3xl font-mono text-center tracking-widest text-[#d4af37]">
                                 {hours}:{minutes}:{seconds}
                             </div>
-                            <div className="text-gray-500 text-xs text-center mt-3 uppercase tracking-wider">
+                            <div className="text-gray-500 text-xs text-center mt-2 uppercase tracking-wider">
                                 Geneva Time
                             </div>
-                            <div className="text-gray-400 text-xs text-center mt-2 font-light italic">
+                            <div className="text-gray-400 text-xs text-center mt-1 font-light italic">
                                 {formattedDate}
                             </div>
                         </div>
@@ -137,17 +138,17 @@ const Login = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="max-w-md w-full px-6 py-8 md:p-10 bg-gray-900/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-800"
+                    className="max-w-md w-full px-6 py-8 md:p-8 bg-gray-900/50 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-800"
                 >
                     {/* Mobile logo */}
-                    <div className="text-center mb-10 md:hidden">
-                        <img src="/images/favicon-watch.svg" alt="Watch Logo" className="h-24 w-24 mx-auto mb-4" />
+                    <div className="text-center mb-8 md:hidden">
+                        <img src="/images/favicon-watch.svg" alt="Watch Logo" className="h-20 w-20 mx-auto mb-4" />
                         <h1 className="text-2xl font-bold text-white mb-2">Horlogerie Prestige</h1>
                         <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent mx-auto my-3"></div>
                         <p className="text-gray-400 text-xs tracking-widest uppercase mt-1">Swiss Excellence Since 1947</p>
                     </div>
 
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-8">
                         <h2 className="text-2xl text-white font-light uppercase tracking-wider">
                             Administration Portal
                         </h2>
@@ -158,7 +159,7 @@ const Login = () => {
                         <motion.div 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mb-8 bg-red-900/30 border border-red-800 text-red-400 p-4 rounded-md text-sm flex items-center"
+                            className="mb-6 bg-red-900/30 border border-red-800 text-red-400 p-4 rounded-md text-sm flex items-center"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -167,7 +168,7 @@ const Login = () => {
                         </motion.div>
                     )}
 
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <div className="floating-label">
                             <input
                                 id="email"
@@ -177,10 +178,10 @@ const Login = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="form-input-luxury w-full px-5 py-6 pt-8 pb-4 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
+                                className="form-input-luxury w-full px-4 py-4 pt-6 pb-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
                                 placeholder=" "
                             />
-                            <label htmlFor="email" className="text-gray-400 text-sm left-5">
+                            <label htmlFor="email" className="text-gray-400 text-sm left-4">
                                 Email address
                             </label>
                         </div>
@@ -194,10 +195,10 @@ const Login = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="form-input-luxury w-full px-5 py-6 pt-8 pb-4 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
+                                className="form-input-luxury w-full px-4 py-4 pt-6 pb-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
                                 placeholder=" "
                             />
-                            <label htmlFor="password" className="text-gray-400 text-sm left-5">
+                            <label htmlFor="password" className="text-gray-400 text-sm left-4">
                                 Password
                             </label>
                         </div>
@@ -213,15 +214,15 @@ const Login = () => {
                             </button>
                         </div>
 
-                        <div className="pt-4">
+                        <div className="pt-3">
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`w-full bg-gradient-to-r from-[#d4af37] to-[#e5c56b] text-gray-900 font-medium py-4 px-6 rounded-md transition-all duration-300 shadow-lg hover:shadow-[#d4af37]/20 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 focus:ring-offset-2 focus:ring-offset-gray-900 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`w-full bg-gradient-to-r from-[#d4af37] to-[#e5c56b] text-gray-900 font-medium py-3 px-5 rounded-md transition-all duration-300 shadow-lg hover:shadow-[#d4af37]/20 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 focus:ring-offset-2 focus:ring-offset-gray-900 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isLoading ? (
                                     <span className="flex items-center justify-center">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
@@ -232,12 +233,12 @@ const Login = () => {
                         </div>
                     </form>
 
-                    <div className="mt-10 text-center">
+                    <div className="mt-8 text-center">
                         <div className="inline-flex items-center justify-center w-full">
-                            <hr className="w-full h-px my-6 bg-gray-800 border-0" />
+                            <hr className="w-full h-px my-5 bg-gray-800 border-0" />
                             <span className="absolute px-3 text-xs font-medium text-gray-500 -translate-x-1/2 bg-gray-900 left-1/2">secured access</span>
                         </div>
-                        <p className="text-gray-500 text-xs mt-4">
+                        <p className="text-gray-500 text-xs mt-3">
                             © {new Date().getFullYear()} Horlogerie Prestige. All rights reserved.
                         </p>
                     </div>
