@@ -113,14 +113,14 @@ textarea.form-input {
 }
 
 .floating-label label {
-    @apply absolute top-1/2 left-3.5 -translate-y-1/2 transition-all duration-200 text-gray-500 dark:text-gray-400 pointer-events-none;
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 text-gray-500 dark:text-gray-400 pointer-events-none;
 }
 
 .floating-label .form-input:focus~label,
 .floating-label .form-input:not(:placeholder-shown)~label,
 .floating-label .form-input-luxury:focus~label,
 .floating-label .form-input-luxury:not(:placeholder-shown)~label {
-    @apply text-xs text-[#d4af37] dark:text-[#d4af37] top-3 -translate-y-0;
+    @apply text-xs text-[#d4af37] dark:text-[#d4af37] top-3 left-1/2 -translate-y-0;
 }
 
 /* Light background for dark mode input fields */

@@ -178,10 +178,10 @@ const Login = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="form-input-luxury w-full px-4 py-4 pt-6 pb-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
+                                className="form-input-luxury w-full h-14 px-4 py-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner text-center"
                                 placeholder=" "
                             />
-                            <label htmlFor="email" className="text-gray-400 text-sm left-4">
+                            <label htmlFor="email" className="text-gray-400 text-sm">
                                 Email address
                             </label>
                         </div>
@@ -195,10 +195,10 @@ const Login = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="form-input-luxury w-full px-4 py-4 pt-6 pb-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner"
+                                className="form-input-luxury w-full h-14 px-4 py-2 bg-gray-800/50 border border-gray-700 text-white focus:ring-[#d4af37]/30 focus:border-[#d4af37] rounded-md shadow-inner text-center"
                                 placeholder=" "
                             />
-                            <label htmlFor="password" className="text-gray-400 text-sm left-4">
+                            <label htmlFor="password" className="text-gray-400 text-sm">
                                 Password
                             </label>
                         </div>
